@@ -1,0 +1,51 @@
+﻿<Window x:Class="EgorPwd.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:EgorPwd"
+        xmlns:icon="http://metro.mahapps.com/winfx/xaml/iconpacks"
+        mc:Ignorable="d"
+        Title="Egor Pass" Height="600" Width="400" MaxWidth="400" MinWidth="400" WindowStartupLocation="CenterScreen" WindowState="Normal" WindowStyle="ToolWindow" Background="#000">
+    <Grid Margin="0 5 0 0">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="45"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <Border Grid.Row="0" Background="#222" CornerRadius="15" Margin="4">
+            <StackPanel Orientation="Horizontal">
+                <Border CornerRadius="10" Background="RoyalBlue" >
+                    <Label Content="{icon:Material Kind=Plus,Width=25,Height=25}" VerticalAlignment="Center" Foreground="#fff"/>
+                    <Border.ToolTip>
+                        <ToolTip>Add new password</ToolTip>
+                    </Border.ToolTip>
+                </Border>
+                <Border Margin="10 0 0 0" CornerRadius="10" Background="IndianRed" >
+                    <Label Content="{icon:Material Kind=Minus,Width=25,Height=25}" VerticalAlignment="Center" Foreground="#fff"/>
+                    <Border.ToolTip>
+                        <ToolTip>Remove password</ToolTip>
+                    </Border.ToolTip>
+                </Border>
+                <Border Margin="10 0 0 0" CornerRadius="10" Background="Orange" >
+                    <Label Content="{icon:Material Kind=Lock,Width=25,Height=25}" VerticalAlignment="Center" Foreground="#fff"/>
+                    <Border.ToolTip>
+                        <ToolTip>Lock and close the repo</ToolTip>
+                    </Border.ToolTip>
+                </Border>
+                <Border Margin="30 0 0 0"  CornerRadius="10" Background="SeaGreen" >
+                    <Label Content="{icon:Material Kind=LockSmart,Width=25,Height=25}" VerticalAlignment="Center" Foreground="#fff"/>
+                    <Border.ToolTip>
+                        <ToolTip>Add new key to current repo</ToolTip>
+                    </Border.ToolTip>
+                </Border>
+                <Border Margin="10 0 0 0" CornerRadius="10" Background="Orange" >
+                    <Label Content="{icon:Material Kind=FileLock,Width=25,Height=25}" VerticalAlignment="Center" Foreground="#fff"/>
+                    <Border.ToolTip>
+                        <ToolTip>Open .EgorPS file</ToolTip>
+                    </Border.ToolTip>
+                </Border>
+            </StackPanel>
+        </Border>
+        <Frame Grid.Row="1" NavigationUIVisibility="Hidden"/>
+    </Grid>
+</Window>
