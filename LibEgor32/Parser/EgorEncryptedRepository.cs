@@ -13,7 +13,9 @@ namespace LibEgor32.Parser
     public class EgorEncryptedRepository
     {
         public EgorVersion Version { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = "";
+        internal string FilePath { get; set; } = "";
+
         public List<EgorKey> EncryptedKeySlot = new List<EgorKey>();
         public List<byte[]?> EncryptedDataSlot = new List<byte[]?>();
 

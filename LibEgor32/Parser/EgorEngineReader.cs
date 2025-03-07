@@ -42,6 +42,7 @@ namespace LibEgor32.Parser
         public static EgorEncryptedRepository ReadRepository(string filePath)
         {
             EgorEncryptedRepository repository = new EgorEncryptedRepository();
+            repository.FilePath = filePath;
 
             using (var file = File.OpenRead(filePath))
             {

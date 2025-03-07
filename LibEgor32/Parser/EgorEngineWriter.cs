@@ -1,4 +1,5 @@
-﻿using LibEgor32.EgorModels;
+﻿using LibEgor32.Crypto;
+using LibEgor32.EgorModels;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -28,11 +29,14 @@ namespace LibEgor32.Parser
 
         public static readonly byte[] EGOR_HEADER = { 0x64, 0xff, 0x33, 0xf1, 0xe1 };
         public static readonly byte[] EGOR_PADD = { 0x00, 0x00, 0x00, 0x00 };
-        public static void UpdateRepository(EgorRepository repo, string filePath)
+        public static void UpdateRepository(EgorRepository repo, EgorKey? currentKey,string filePath)
         {
+            if(currentKey == null)
+                throw new NullReferenceException("CurrentKey cannot be null");
             using (var file = File.OpenWrite(filePath))
             {
-                byte[] serializedRepo = SerializeRepository(repo);
+                byte[] serializedRepo = SerializeRepository(repo,currentKey);
+                file.Write(serializedRepo, 0, serializedRepo.Length);
             }
         }
         private static byte[] SerializeRepository(EgorRepository repo, EgorKey key)
@@ -69,10 +73,10 @@ namespace LibEgor32.Parser
             */
             List<byte> bKey = new List<byte>();
 
-            foreach (EgorKey key in repo.KeySlot)
+            foreach (EgorKey keyEntry in repo.KeySlot)
             {
-                bKey.AddRange(key.KeyHash ?? throw new NullReferenceException("KeyHash cannot be null"));
-                bKey.AddRange(key.EncryptedMasterKey ?? throw new NullReferenceException("MasterKey cannot be null"));
+                bKey.AddRange(keyEntry.KeyHash ?? throw new NullReferenceException("KeyHash cannot be null"));
+                bKey.AddRange(keyEntry.EncryptedMasterKey ?? throw new NullReferenceException("MasterKey cannot be null"));
                 bKey.AddRange(EGOR_PADD);
             }
             bRepo.AddRange(bKey.ToArray());
@@ -82,10 +86,11 @@ namespace LibEgor32.Parser
 
             foreach (EgorKeyData data in repo.KeyData)
             {
-                bRepo.AddRange(EncryptKeyData(data));
+                bRepo.AddRange(EncryptKeyData(data,key));
             }
             return bRepo.ToArray();
         }
+
         /*
             * Single dataSlot entry format:
             * ID (4 byte)
@@ -116,7 +121,15 @@ namespace LibEgor32.Parser
 
             byte[] enKey = ProtectedData.Unprotect(key.SecuredKey ?? throw new NullReferenceException("SecureKey was null"), null, DataProtectionScope.CurrentUser);
             
-            
+            //Decrypting masterKey
+            byte[] masterKey = CryptoEngine.DecryptData(key.EncryptedMasterKey ?? throw new NullReferenceException("MasterKey was null"), enKey, null ,EgorVersion.V1);
+
+            byte[] encryptedData = CryptoEngine.EncryptData(bKeyData.ToArray(), masterKey, null, EgorVersion.V1);
+
+            //Disposing masterKey
+            Array.Clear(masterKey, 0, masterKey.Length);
+
+            return encryptedData;
         }
     }
 }
