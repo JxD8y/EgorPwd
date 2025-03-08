@@ -126,7 +126,8 @@ namespace LibEgor32.Parser
 
             byte[] encryptedData = CryptoEngine.EncryptData(bKeyData.ToArray(), masterKey, null, EgorVersion.V1);
 
-            //Disposing masterKey
+            //Disposing masterKey & enKey
+            Array.Clear(enKey,0, enKey.Length);
             Array.Clear(masterKey, 0, masterKey.Length);
 
             return encryptedData;
