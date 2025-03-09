@@ -2,6 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -26,7 +28,6 @@ namespace LibEgor32.Parser
         /// [DATASLOTBEGIN (STRING)]
         /// [DATA]
         /// [PADD]
-        /// [DATASLOTEND (STRING)]
         /// </summary>
 
 
@@ -51,7 +52,7 @@ namespace LibEgor32.Parser
 
                 //Validating header
 
-                if (header != EGOR_HEADER)
+                if (!header.SequenceEqual(EGOR_HEADER))
                 {
                     throw new Exception("Selected file does not have a egor header");
                 }
@@ -66,6 +67,7 @@ namespace LibEgor32.Parser
                     nameBytes.Add(lVal);
                 } while (lVal != 0);
                 string name = Encoding.UTF8.GetString(nameBytes.ToArray());
+
                 repository.Name = name;
 
                 byte version = (byte)file.ReadByte();
@@ -81,7 +83,7 @@ namespace LibEgor32.Parser
                 byte[] PADD = new byte[4];
 
                 file.Read(PADD, 0, 4);
-                if (PADD != EGOR_PADD)
+                if (!PADD.SequenceEqual(EGOR_PADD))
                 {
                     throw new Exception("Invalid byte alignment");
                 }
@@ -90,29 +92,30 @@ namespace LibEgor32.Parser
                 do
                 {
                     lVal = (byte)file.ReadByte();
-                    nameBytes.Add(lVal);
+                    _strBytes.Add(lVal);
                 } while (lVal != 0);
 
-                if (Encoding.UTF8.GetString(nameBytes.ToArray()) != "KEYSLOTBEGIN")
+                if (Encoding.UTF8.GetString(_strBytes.ToArray()) != "KEYSLOTBEGIN\0")
                 {
                     throw new Exception("Cannot find KeySlot");
                 }
                 //Getting all key slot bytes
 
-                byte[] keySlotEndBytes = Encoding.UTF8.GetBytes("KEYSLOTEND");
+                byte[] keySlotEndBytes = Encoding.UTF8.GetBytes("KEYS");
                 List<byte> _keySlot = new List<byte>();
                 bool keySlotEnd = false;
-                byte[] buffer = new byte[11];
+                byte[] buffer = new byte[4];
                 int i = 0;
                 do
                 {
                     byte value = (byte)file.ReadByte();
                     buffer[i++] = value;
-                    if (i == 10)
+                    if (i > 3)
                     {
-                        if (buffer == keySlotEndBytes)
+                        if (buffer.SequenceEqual(keySlotEndBytes))
                         {
                             keySlotEnd = true;
+                            file.Seek(7, SeekOrigin.Current);
                             break;
                         }
                         else
@@ -137,45 +140,69 @@ namespace LibEgor32.Parser
                 do
                 {
                     lVal = (byte)file.ReadByte();
-                    nameBytes.Add(lVal);
+                    _strBytes.Add(lVal);
                 } while (lVal != 0);
 
-                if (Encoding.UTF8.GetString(nameBytes.ToArray()) != "DATASLOTBEGIN")
+                if (Encoding.UTF8.GetString(_strBytes.ToArray()) != "DATASLOTBEGIN\0")
                 {
                     throw new Exception("Cannot find DataSlot");
                 }
 
-                byte[] dataSlotEndBytes = Encoding.UTF8.GetBytes("DATASLOTEND");
                 List<byte> _dataSlot = new List<byte>();
-                bool dataSlotEnd = false;
-                buffer = new byte[11];
+                buffer = new byte[4];
 
-                i = 0;
                 do
                 {
-                    byte value = (byte)file.ReadByte();
-                    buffer[i++] = value;
-                    if (i == 10)
-                    {
-                        if (buffer == dataSlotEndBytes)
-                        {
-                            dataSlotEnd = true;
-                            break;
-                        }
-                        else
-                        {
-                            i = 0;
-                            _dataSlot.AddRange(buffer);
-                        }
-                    }
-
-                } while (!dataSlotEnd);
+                    file.Read(buffer, 0, 4);
+                    _dataSlot.AddRange(buffer);
+                } while (file.Position < file.Length );
 
                 List<byte[]?> data = ParseDataBytes(_dataSlot, repository.Version);
                 repository.EncryptedDataSlot = data;
                 return repository;
 
             }
+        }
+        public static EgorKeyData ParseKeyDataBytes(byte[] keyDataBytes, EgorVersion version)
+        {
+            EgorKeyData keyData = new EgorKeyData();
+
+            int id = 0;
+            string name = "";
+            string password = "";
+
+            byte[] buffer = new byte[4];
+
+            using(MemoryStream ms = new MemoryStream(keyDataBytes))
+            {
+                //reading ID
+                ms.Read(buffer, 0, buffer.Length);
+                id = BitConverter.ToInt32(buffer);
+
+                //reading name
+                List<byte> lBuf = new List<byte>();
+                byte val = 0xf1;
+                do
+                {
+                    val = (byte)ms.ReadByte();
+                    lBuf.Add(val);
+                } while (val != 0);
+                name = Encoding.UTF8.GetString(lBuf.ToArray());
+
+                //reading password
+                lBuf.Clear();
+                do
+                {
+                    val = (byte)ms.ReadByte();
+                    lBuf.Add(val);
+                } while (val != 0);
+                password = Encoding.UTF8.GetString(lBuf.ToArray());
+
+            }
+            keyData.ID = id;
+            keyData.Name = name;
+            keyData.Password = password;
+            return keyData;
         }
         private static List<EgorKey> ParseKeySlotBytes(List<byte> keySlotBytes, EgorVersion version)
         {
@@ -189,16 +216,17 @@ namespace LibEgor32.Parser
             {
                 if (!hashAssoc)
                 {
-                    keyHash = keySlotBytes.Slice(i, i + 31).ToArray();
+                    keyHash = keySlotBytes.Slice(i, 32).ToArray();
                     hashAssoc = true;
                 }
                 else
                 {
-                    masterKey = keySlotBytes.Slice(i, i + 31).ToArray();
+                    masterKey = keySlotBytes.Slice(i, 32).ToArray();
                     i += 4; //ignoring paddings
                     key.KeyHash = keyHash;
                     key.EncryptedMasterKey = masterKey;
                     keys.Add(key);
+                    hashAssoc = false;
                     key = new EgorKey(version);
                 }
             }
@@ -214,10 +242,9 @@ namespace LibEgor32.Parser
             byte[] buffer = new byte[4];
             for (int i = 0; i < dataBytes.Count; i++)
             {
-                buffer[i % 4] = dataBytes[i];
-                if (i % 4 == 0)
+                if (i % 4 == 0 && i > 0)
                 {
-                    if (buffer == EGOR_PADD)
+                    if (buffer.SequenceEqual(EGOR_PADD))
                     {
                         dataList.Add(data.ToArray());
                         data.Clear();
@@ -227,7 +254,10 @@ namespace LibEgor32.Parser
                         data.AddRange(buffer);
                     }
                 }
+                buffer[i % 4] = dataBytes[i];
             }
+            if (data.Count >= 32)
+                dataList.Add(data.ToArray());
             return dataList;
         }
     }

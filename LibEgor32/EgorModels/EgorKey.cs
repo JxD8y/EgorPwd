@@ -5,6 +5,7 @@ using System.Security.Principal;
 using System.Text;
 using System.Threading.Tasks;
 using System.Security.Cryptography;
+using LibEgor32.Crypto;
 
 namespace LibEgor32.EgorModels
 {
@@ -21,6 +22,21 @@ namespace LibEgor32.EgorModels
         public EgorKey(EgorVersion version)
         {
             this.Version = version;
+        }
+        public void OpenKey(byte[] key)
+        {
+            var hsh = HashUtil.ComputeHash(Version, key);
+            if (!hsh.SequenceEqual(KeyHash ?? throw new NullReferenceException("Key hash was null")))
+                throw new Exception("Key hash does not match");
+
+            SecuredKey = ProtectedData.Protect(key, null, DataProtectionScope.CurrentUser);
+        }
+        public void CloseKey()
+        {
+            if (SecuredKey == null)
+                throw new NullReferenceException("Secured key was not Open");
+
+            Array.Clear(SecuredKey, 0, SecuredKey.Length);
         }
     }
 }

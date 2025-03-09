@@ -17,7 +17,7 @@ namespace LibEgor32.EgorModels
 
         public EgorKeyData() { }
 
-        public EgorKeyData(1int id , string name)
+        public EgorKeyData(int id , string name)
         {
             this.Name = name;
             this.ID = id;

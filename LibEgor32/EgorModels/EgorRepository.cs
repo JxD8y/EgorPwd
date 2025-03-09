@@ -1,4 +1,5 @@
-﻿using System;
+﻿using LibEgor32.Parser;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -14,7 +15,7 @@ namespace LibEgor32.EgorModels
     {
         public EgorVersion Version { get; set; }
         public string Name { get; set; } = "";
-        public List<EgorKey> KeySlot { get; } = new List<EgorKey>();
+        public List<EgorKey> KeySlot { get; internal set; } = new List<EgorKey>();
         public List<EgorKeyData> KeyData { get; } = new List<EgorKeyData>();
         
         public event Action<EgorKey, DataAction>? OnKeySlotChanged;
@@ -28,22 +29,22 @@ namespace LibEgor32.EgorModels
             this.Name = name;
         }
 
-        public void AddNewData(EgorKeyData keyData)
+        public void AddNewData(EgorKeyData keyData,EgorKey currentKey)
         {
-
+            EgorEngine.AddDataKeySlotEntry(this, currentKey, keyData, this.FilePath);
         }
-        public void RemoveData(EgorKeyData keyData)
+        public void RemoveData(EgorKeyData keyData, EgorKey currentKey)
         {
-
+            EgorEngine.RemoveDataKeySlotEntry(this, currentKey, keyData, this.FilePath);
         }
         
-        public void AddNewKeyToKeySlot(EgorKey key)
+        public void AddNewKeyToKeySlot(EgorKey key, EgorKey currentKey)
         {
-
+            EgorEngine.AddKeySlotEntry(this, currentKey, key, this.FilePath);
         }
-        public void RemoveKeyFromKeySlot(EgorKey key)
+        public void RemoveKeyFromKeySlot(EgorKey key,EgorKey currentKey)
         {
-
+            EgorEngine.RemoveKeySlotEntry(this, currentKey, key,this.FilePath);
         }
     }
 }

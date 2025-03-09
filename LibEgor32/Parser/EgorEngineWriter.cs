@@ -33,11 +33,16 @@ namespace LibEgor32.Parser
         {
             if(currentKey == null)
                 throw new NullReferenceException("CurrentKey cannot be null");
+            if(File.Exists(filePath))
+                File.Copy(filePath, filePath + ".back");
+            File.Delete(filePath);
             using (var file = File.OpenWrite(filePath))
             {
                 byte[] serializedRepo = SerializeRepository(repo,currentKey);
                 file.Write(serializedRepo, 0, serializedRepo.Length);
             }
+            if (File.Exists(filePath))
+                File.Delete(filePath + ".back");
         }
         private static byte[] SerializeRepository(EgorRepository repo, EgorKey key)
         { 
@@ -49,7 +54,7 @@ namespace LibEgor32.Parser
 
             if (repo.Name.Length == 0)
                 throw new Exception("Repository name cannot be empty");
-            byte[] nameBytes = Encoding.UTF8.GetBytes(repo.Name);
+            byte[] nameBytes = Encoding.UTF8.GetBytes(repo.Name[repo.Name.Length - 1] == '\0' ? repo.Name : repo.Name + '\0');
 
             //version
 
@@ -60,7 +65,7 @@ namespace LibEgor32.Parser
             bRepo.AddRange(EGOR_PADD);
 
             //Adding KeySlot
-            bRepo.AddRange(Encoding.UTF8.GetBytes("KEYSLOTBEGIN"));
+            bRepo.AddRange(Encoding.UTF8.GetBytes("KEYSLOTBEGIN\0"));
 
             if (repo.KeySlot.Count == 0)
                 throw new Exception("KeySlot should contain atleast one key");
@@ -71,6 +76,7 @@ namespace LibEgor32.Parser
              * Master Key (32 byte)
              * PADD
             */
+            
             List<byte> bKey = new List<byte>();
 
             foreach (EgorKey keyEntry in repo.KeySlot)
@@ -80,13 +86,14 @@ namespace LibEgor32.Parser
                 bKey.AddRange(EGOR_PADD);
             }
             bRepo.AddRange(bKey.ToArray());
-            bRepo.AddRange(Encoding.UTF8.GetBytes("KEYSLOTEND"));
+            bRepo.AddRange(Encoding.UTF8.GetBytes("KEYSLOTEND\0"));
 
-            bRepo.AddRange(Encoding.UTF8.GetBytes("DATASLOTBEGIN"));
+            bRepo.AddRange(Encoding.UTF8.GetBytes("DATASLOTBEGIN\0"));
 
             foreach (EgorKeyData data in repo.KeyData)
             {
                 bRepo.AddRange(EncryptKeyData(data,key));
+                bRepo.AddRange(EGOR_PADD);
             }
             return bRepo.ToArray();
         }
@@ -94,11 +101,8 @@ namespace LibEgor32.Parser
         /*
             * Single dataSlot entry format:
             * ID (4 byte)
-            * PADD
-            * Name (?? byte)
-            * PADD
-            * Password (?? byte)
-            * PADD
+            * Name (?? byte)\0
+            * Password (?? byte)\0
         */
         public static byte[] EncryptKeyData(EgorKeyData data,EgorKey key)
         {
@@ -107,15 +111,12 @@ namespace LibEgor32.Parser
             //Adding ID
 
             bKeyData.AddRange(BitConverter.GetBytes(data.ID));
-            bKeyData.AddRange(EGOR_PADD);
 
             //Adding name
-            bKeyData.AddRange(Encoding.UTF8.GetBytes(data.Name));
-            bKeyData.AddRange(EGOR_PADD);
+            bKeyData.AddRange(Encoding.UTF8.GetBytes(data.Name[data.Name.Length - 1] == '\0' ? data.Name : data.Name + '\0'));
             
             //Adding Password
-            bKeyData.AddRange(Encoding.UTF8.GetBytes(data.Password));
-            bKeyData.AddRange(EGOR_PADD);
+            bKeyData.AddRange(Encoding.UTF8.GetBytes(data.Password[data.Password.Length - 1] == '\0' ? data.Password : data.Password + '\0'));
 
             //Encrypting byte array using AES256
 

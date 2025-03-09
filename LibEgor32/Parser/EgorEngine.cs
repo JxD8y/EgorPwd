@@ -23,7 +23,7 @@ namespace LibEgor32.Parser
             EgorEngineWriter.UpdateRepository(repo,key,filePath);
             return repo;
         }
-        public static EgorKey CreateKey(byte[] key,EgorVersion version = EgorVersion.V1)
+        public static EgorKey CreateNewKey(byte[] key,EgorVersion version = EgorVersion.V1)
         {
             EgorKey egorKey = new EgorKey(version);
             byte[] masterKey = CryptoEngine.GenerateRandomBytes(16);
@@ -65,9 +65,41 @@ namespace LibEgor32.Parser
         {
             return EgorEngineReader.ReadRepository(filePath);
         }
-        public static EgorRepository DecryptRepository(EgorEncryptedRepository repo , EgorKey currentKey)
+        public static EgorRepository DecryptRepository(EgorEncryptedRepository eRepo, EgorKey currentKey)
         {
-             
+            EgorRepository repo = new EgorRepository(eRepo.Version, eRepo.Name);
+            repo.KeySlot = eRepo.EncryptedKeySlot;
+            repo.FilePath = eRepo.FilePath;
+
+            byte[] cKey = ProtectedData.Unprotect(currentKey.SecuredKey ?? throw new NullReferenceException("Current key secureKey was null"), null, DataProtectionScope.CurrentUser);
+
+            byte[] masterKey = CryptoEngine.DecryptData(currentKey.EncryptedMasterKey ?? throw new NullReferenceException("Current key MasterKey was null"), cKey, null, repo.Version);
+
+            //Decrypting each entry in EER using masterKey
+            List<byte[]> decrypted = new List<byte[]>();
+            foreach (byte[]? entry in eRepo.EncryptedDataSlot)
+            {
+                if (entry is null)
+                    continue;
+
+                EgorKeyData data = new EgorKeyData();
+
+                byte[] decryptedData = CryptoEngine.DecryptData(entry, masterKey, null, repo.Version);
+
+                decrypted.Add(decryptedData);
+                //Doing deserialization in another loop to prevent master key exposed in memory for long time
+            }
+
+            Array.Clear(masterKey, 0, masterKey.Length);
+            Array.Clear(cKey, 0, cKey.Length);
+            foreach (byte[] data in decrypted)
+            {
+                EgorKeyData keyData = EgorEngineReader.ParseKeyDataBytes(data, repo.Version);
+                repo.KeyData.Add(keyData);
+            }
+
+            return repo;
+
         }
         public static void WriteEgorFile(EgorRepository repo,EgorKey key,string filePath)
         {
@@ -78,10 +110,10 @@ namespace LibEgor32.Parser
             if(!repo.KeySlot.Contains(currentKey))
                 throw new Exception("Current key is not in the key slot");
 
-            if (newKey.KeyHash?.Length < 256)
+            if (newKey.KeyHash?.Length < 32)
                 throw new Exception("Invalid hash data in newKey");
 
-            if(newKey.EncryptedMasterKey?.Length < 256)
+            if(newKey.EncryptedMasterKey?.Length < 32)
                 throw new Exception("Invalid master key data in newKey");
 
             repo.KeySlot.Add(newKey);
@@ -90,18 +122,50 @@ namespace LibEgor32.Parser
         }
         /// <summary>
         /// RemoveKeySlotEntry and AddKeySlotEntry does not need to decrypt data from repository so EgorWriterEngine shouldn't decrypt the data 
+        /// </summary>
         public static void RemoveKeySlotEntry(EgorRepository repo, EgorKey currentKey, EgorKey keyToRemove, string filePath)
         {
-            if (!repo.KeySlot.Contains(currentKey))
+            if (keyToRemove.EncryptedMasterKey is null || keyToRemove.KeyHash is null)
+                throw new NullReferenceException("Key contains null masterKey and hash");
+
+            if (repo.KeySlot.Count((EgorKey k)=> { return k.KeyHash is not null && k.KeyHash.SequenceEqual(currentKey.KeyHash ?? throw new NullReferenceException("Key hash was null")); }) == 0)
                 throw new Exception("Current key is not in the key slot");
 
-            if (!repo.KeySlot.Contains(keyToRemove))
+            if (repo.KeySlot.Count((EgorKey k) => { return k.KeyHash is not null && k.KeyHash.SequenceEqual(keyToRemove.KeyHash ?? throw new NullReferenceException("Key hash was null")); }) == 0)
                 throw new Exception("KeyToRemove is not in the key slot");
 
             if(currentKey == keyToRemove)
                 throw new Exception("Cannot remove current key");
 
-            repo.KeySlot.Remove(keyToRemove);
+            repo.KeySlot.RemoveAll((EgorKey k) => { return k.KeyHash is not null && k.KeyHash.SequenceEqual(keyToRemove.KeyHash); });
+            EgorEngineWriter.UpdateRepository(repo, currentKey, filePath);
+
+            //Preventing from reusing key if repo is not reloaded
+            Array.Clear(keyToRemove.EncryptedMasterKey, 0, keyToRemove.EncryptedMasterKey.Length);
+            Array.Clear(keyToRemove.KeyHash, 0, keyToRemove.KeyHash.Length);
+        }
+
+        public static void AddDataKeySlotEntry(EgorRepository repo, EgorKey currentKey , EgorKeyData data ,string filePath)
+        {
+            if (repo.KeySlot.Count((EgorKey k) => { return k.KeyHash is not null && k.KeyHash.SequenceEqual(currentKey.KeyHash ?? throw new NullReferenceException("Key hash was null")); }) == 0)
+                throw new Exception("Current key is not in the key slot");
+
+            if (repo.KeyData.Exists((EgorKeyData _d) =>  _d.ID == data.ID))
+                throw new Exception("Data with same ID already exists");
+
+            repo.KeyData.Add(data);
+
+            EgorEngineWriter.UpdateRepository(repo, currentKey, filePath);
+        }
+        public static void RemoveDataKeySlotEntry(EgorRepository repo, EgorKey currentKey, EgorKeyData data, string filePath)
+        {
+            if (repo.KeySlot.Count((EgorKey k) => { return k.KeyHash is not null && k.KeyHash.SequenceEqual(currentKey.KeyHash ?? throw new NullReferenceException("Key hash was null")); }) == 0)
+                throw new Exception("Current key is not in the key slot");
+
+            if (!repo.KeyData.Exists((EgorKeyData _d) => _d.ID == data.ID))
+                throw new Exception("Data is not in the key slot");
+
+            repo.KeyData.RemoveAll((EgorKeyData d) => { return d.ID == data.ID; });
             EgorEngineWriter.UpdateRepository(repo, currentKey, filePath);
         }
     }
