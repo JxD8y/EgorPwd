@@ -1,0 +1,78 @@
+﻿<Page x:Class="EgorPwd.Views.LoaderPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:EgorPwd.Views"
+      xmlns:icon="http://metro.mahapps.com/winfx/xaml/iconpacks"
+      xmlns:control="clr-namespace:EgorPwd.Controls"
+      mc:Ignorable="d" 
+      d:DesignHeight="570" d:DesignWidth="390"
+      Title="LoaderPage" Background="#000" Loaded="Page_Loaded">
+
+    <Grid Margin="5 10 5 5">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="40"/>
+            <RowDefinition/>
+            <RowDefinition Height="30"/>
+        </Grid.RowDefinitions>
+        <StackPanel Grid.Row="0" Orientation="Horizontal">
+            <Button x:Name="CreateRepo" Click="CreateRepo_Click">
+                <Label Content="{icon:Material Kind=Plus,Width=25,Height=25}" VerticalAlignment="Center" Foreground="SeaGreen"/>
+                <Button.ToolTip>
+                    <ToolTip>Create new password repository</ToolTip>
+                </Button.ToolTip>
+            </Button>
+            <Button Margin="10 0 0 0" x:Name="OpenDefRepo" Click="OpenDefRepo_Click">
+                <Label Content="{icon:Material Kind=Database,Width=25,Height=25}" VerticalAlignment="Center" Foreground="RoyalBlue"/>
+                <Button.ToolTip>
+                    <ToolTip>Open default repository</ToolTip>
+                </Button.ToolTip>
+            </Button>
+            <Button x:Name="OpenRepo" Click="OpenRepo_Click" Margin="10 0 0 0">
+                <Label Content="{icon:Material Kind=Folder,Width=25,Height=25}" VerticalAlignment="Center" Foreground="Orange"/>
+                <Button.ToolTip>
+                    <ToolTip>Open from file</ToolTip>
+                </Button.ToolTip>
+            </Button>
+        </StackPanel>
+        <StackPanel Margin="0 150 0 0" Grid.Row="1" Orientation="Vertical">
+            <StackPanel Margin="0 0 0 20" HorizontalAlignment="Center" Orientation="Horizontal">
+                <Label Content="{icon:Material Kind=Harddisk,Width=25,Height=25}" VerticalAlignment="Center" Foreground="RoyalBlue"/>
+                <Label Content="Decrypting" VerticalAlignment="Center" Foreground="#fff"/>
+                <Label x:Name="repoName" Content="Secret" VerticalAlignment="Center" FontWeight="Bold" Foreground="#fff">
+                    <Label.ToolTip>
+                        <ToolTip>
+                            <StackPanel Orientation="Vertical">
+                                <StackPanel Orientation="Horizontal">
+                                    <Label>Version:</Label>
+                                    <Label x:Name="version">0</Label>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <Label>KeySlot size:</Label>
+                                    <Label x:Name="keySlotSize">0</Label>
+                                </StackPanel>
+                            </StackPanel>
+                        </ToolTip>
+                    </Label.ToolTip>
+                </Label>
+                <Label Content="Database: " VerticalAlignment="Center" Foreground="#fff"/>
+            </StackPanel>
+            <StackPanel Margin="10 0 0 0" Orientation="Horizontal">
+                <control:LabelTextBox HelperContent="Password" x:Name="PasswordInput" Width="330"/>
+                <Label Content="{icon:Material Kind=Eye}" x:Name="ShowPassword" MouseLeftButtonDown="ShowPassword_MouseLeftButtonDown" Foreground="RoyalBlue" VerticalAlignment="Center"/>
+                <Label Content="{icon:Material Kind=EyeClosed}" Visibility="Collapsed" x:Name="HidePassword" MouseLeftButtonDown="HidePassword_MouseLeftButtonDown"  Foreground="RoyalBlue" VerticalAlignment="Center"/>
+            </StackPanel>
+            <Button x:Name="DecryptDatabase" Margin="10 10 10 0" Click="DecryptDatabase_Click">
+                <StackPanel Orientation="Horizontal">
+                    <Label Content="{icon:Material Kind=key,Width=25,Height=25}" VerticalAlignment="Center" Foreground="Orange"/>
+                    <Label Foreground="#fff" VerticalAlignment="Center">Decrypt</Label>
+                </StackPanel>
+            </Button>
+        </StackPanel>
+        <StackPanel Grid.Row="2" Orientation="Horizontal">
+            <Label Content="{icon:Material Kind=Information}" VerticalAlignment="Center" Foreground="Gainsboro"/>
+            <Label FontSize="12" VerticalAlignment="Center" Content="Default database is Database.Egor in current exec path" Foreground="Gainsboro"/>
+        </StackPanel>
+    </Grid>
+</Page>

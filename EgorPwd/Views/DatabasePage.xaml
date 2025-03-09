@@ -1,0 +1,43 @@
+﻿<Page x:Class="EgorPwd.Views.DatabasePage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:EgorPwd.Views"
+      xmlns:icon="http://metro.mahapps.com/winfx/xaml/iconpacks"
+      xmlns:control ="clr-namespace:EgorPwd.Controls"
+      mc:Ignorable="d" 
+      d:DesignHeight="570" d:DesignWidth="390"
+        Title="Database page" Background="#000">
+
+    <Grid Margin="5 10 5 5">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="40"/>
+            <RowDefinition/>
+            <RowDefinition Height="30"/>
+        </Grid.RowDefinitions>
+        <StackPanel HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Row="0" Orientation="Horizontal">
+            <Label VerticalAlignment="Center" Content="{icon:Material Kind=Harddisk}" Foreground="RoyalBlue"/>
+            <Label VerticalAlignment="Center" x:Name="DBname" FontWeight="SemiBold" Content="Secret" Foreground="#fff"/>
+            <Button Margin="20 0 0 0">
+                <Label Content="{icon:Material Kind=SettingsHelper,Width=25,Height=25}" VerticalAlignment="Center" Foreground="IndianRed"/>
+                <Button.ToolTip>
+                    <ToolTip>Open database settings</ToolTip>
+                </Button.ToolTip>
+            </Button>
+            <Button Margin="10 0 0 0">
+                <Label Content="{icon:Material Kind=Lock,Width=25,Height=25}" VerticalAlignment="Center" Foreground="Orange"/>
+                <Button.ToolTip>
+                    <ToolTip>Lock database</ToolTip>
+                </Button.ToolTip>
+            </Button>
+        </StackPanel>
+        <StackPanel Grid.Row="2" Orientation="Horizontal">
+            <Label Content="{icon:Material Kind=Information}" VerticalAlignment="Center" Foreground="Gainsboro"/>
+            <Label FontSize="12" VerticalAlignment="Center" Content="Key slots: " Foreground="Gainsboro"/>
+            <Label FontSize="12" x:Name="keySlotCount" VerticalAlignment="Center" Content="0" Foreground="Gainsboro"/>
+            <Label FontSize="12" VerticalAlignment="Center" Content="KeyData stored: " Foreground="Gainsboro"/>
+            <Label FontSize="12" x:Name="KeyDataCount" VerticalAlignment="Center" Content="0" Foreground="Gainsboro"/>
+        </StackPanel>
+    </Grid>
+</Page>

@@ -16,11 +16,11 @@ using System.Windows.Shapes;
 namespace EgorPwd.Views
 {
     /// <summary>
-    /// Interaction logic for DecryptView.xaml
+    /// Interaction logic for DatabasePage.xaml
     /// </summary>
-    public partial class DecryptView : Page
+    public partial class DatabasePage : Page
     {
-        public DecryptView()
+        public DatabasePage()
         {
             InitializeComponent();
         }

@@ -1,7 +1,5 @@
 ﻿using System;
-using LibEgor32;
 using LibEgor32.EgorModels;
-using LibEgor32.Parser;
 using System.Text;
 using LibEgor32.Crypto;
 

@@ -4,6 +4,29 @@
              xmlns:local="clr-namespace:EgorPwd"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-        
+        <FontFamily x:Key="DefaultFont">pack://application:,,,/Resources/Fonts/#Heebo-VariableFont_wght</FontFamily>
+        <Style TargetType="Label">
+            <Setter Property="FontFamily" Value="{StaticResource DefaultFont}"/>
+            <Setter Property="FontSize" Value="15"/>
+        </Style>
+        <Style TargetType="Button">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Height="{TemplateBinding Height}" Padding="0" CornerRadius="10" Background="#222" x:Name="PART_MAIN">
+                            <Label Foreground="#fff" Padding="0" Content="{TemplateBinding Content}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" TargetName="PART_MAIN" Value="#333"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="False">
+                                <Setter Property="Background" TargetName="PART_MAIN" Value="#222"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style> 
     </Application.Resources>
 </Application>

@@ -1,5 +1,6 @@
 ﻿using LibEgor32.Crypto;
 using LibEgor32.EgorModels;
+using LibEgor32.Parser;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +8,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace LibEgor32.Parser
+namespace LibEgor32
 {
     /// <summary>
     /// This class will load a .egor file and verify it and also perform data serialization
@@ -128,16 +129,16 @@ namespace LibEgor32.Parser
             if (keyToRemove.EncryptedMasterKey is null || keyToRemove.KeyHash is null)
                 throw new NullReferenceException("Key contains null masterKey and hash");
 
-            if (repo.KeySlot.Count((EgorKey k)=> { return k.KeyHash is not null && k.KeyHash.SequenceEqual(currentKey.KeyHash ?? throw new NullReferenceException("Key hash was null")); }) == 0)
+            if (repo.KeySlot.Count((k)=> { return k.KeyHash is not null && k.KeyHash.SequenceEqual(currentKey.KeyHash ?? throw new NullReferenceException("Key hash was null")); }) == 0)
                 throw new Exception("Current key is not in the key slot");
 
-            if (repo.KeySlot.Count((EgorKey k) => { return k.KeyHash is not null && k.KeyHash.SequenceEqual(keyToRemove.KeyHash ?? throw new NullReferenceException("Key hash was null")); }) == 0)
+            if (repo.KeySlot.Count((k) => { return k.KeyHash is not null && k.KeyHash.SequenceEqual(keyToRemove.KeyHash ?? throw new NullReferenceException("Key hash was null")); }) == 0)
                 throw new Exception("KeyToRemove is not in the key slot");
 
             if(currentKey == keyToRemove)
                 throw new Exception("Cannot remove current key");
 
-            repo.KeySlot.RemoveAll((EgorKey k) => { return k.KeyHash is not null && k.KeyHash.SequenceEqual(keyToRemove.KeyHash); });
+            repo.KeySlot.RemoveAll((k) => { return k.KeyHash is not null && k.KeyHash.SequenceEqual(keyToRemove.KeyHash); });
             EgorEngineWriter.UpdateRepository(repo, currentKey, filePath);
 
             //Preventing from reusing key if repo is not reloaded
@@ -147,10 +148,10 @@ namespace LibEgor32.Parser
 
         public static void AddDataKeySlotEntry(EgorRepository repo, EgorKey currentKey , EgorKeyData data ,string filePath)
         {
-            if (repo.KeySlot.Count((EgorKey k) => { return k.KeyHash is not null && k.KeyHash.SequenceEqual(currentKey.KeyHash ?? throw new NullReferenceException("Key hash was null")); }) == 0)
+            if (repo.KeySlot.Count((k) => { return k.KeyHash is not null && k.KeyHash.SequenceEqual(currentKey.KeyHash ?? throw new NullReferenceException("Key hash was null")); }) == 0)
                 throw new Exception("Current key is not in the key slot");
 
-            if (repo.KeyData.Exists((EgorKeyData _d) =>  _d.ID == data.ID))
+            if (repo.KeyData.Exists((_d) =>  _d.ID == data.ID))
                 throw new Exception("Data with same ID already exists");
 
             repo.KeyData.Add(data);
@@ -159,13 +160,13 @@ namespace LibEgor32.Parser
         }
         public static void RemoveDataKeySlotEntry(EgorRepository repo, EgorKey currentKey, EgorKeyData data, string filePath)
         {
-            if (repo.KeySlot.Count((EgorKey k) => { return k.KeyHash is not null && k.KeyHash.SequenceEqual(currentKey.KeyHash ?? throw new NullReferenceException("Key hash was null")); }) == 0)
+            if (repo.KeySlot.Count((k) => { return k.KeyHash is not null && k.KeyHash.SequenceEqual(currentKey.KeyHash ?? throw new NullReferenceException("Key hash was null")); }) == 0)
                 throw new Exception("Current key is not in the key slot");
 
-            if (!repo.KeyData.Exists((EgorKeyData _d) => _d.ID == data.ID))
+            if (!repo.KeyData.Exists((_d) => _d.ID == data.ID))
                 throw new Exception("Data is not in the key slot");
 
-            repo.KeyData.RemoveAll((EgorKeyData d) => { return d.ID == data.ID; });
+            repo.KeyData.RemoveAll((d) => { return d.ID == data.ID; });
             EgorEngineWriter.UpdateRepository(repo, currentKey, filePath);
         }
     }
