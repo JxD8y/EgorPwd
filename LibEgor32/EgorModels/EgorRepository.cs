@@ -16,9 +16,6 @@ namespace LibEgor32.EgorModels
         public string Name { get; set; } = "";
         public List<EgorKey> KeySlot { get; internal set; } = new List<EgorKey>();
         public List<EgorKeyData> KeyData { get; } = new List<EgorKeyData>();
-        
-        public event Action<EgorKey, DataAction>? OnKeySlotChanged;
-        public event Action<EgorKeyData, DataAction>? OnDataSlotChanged;
 
         internal string FilePath = "";
         
