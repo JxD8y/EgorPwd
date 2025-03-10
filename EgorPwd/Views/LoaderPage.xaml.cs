@@ -154,5 +154,10 @@ namespace EgorPwd.Views
                 e.Handled = true;
             }
         }
+
+        private void InfoAbout_Click(object sender, RoutedEventArgs e)
+        {
+            MessageBox.Show("Egor PWD\nCreated by JxD8y\nSoftware Info:\nCurrent EgorPWD version: V1.0.0\nCurrent LibEgor32 version: v1.0.0", "About", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
     }
 }

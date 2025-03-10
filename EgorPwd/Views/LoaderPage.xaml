@@ -26,7 +26,7 @@
             <Button Margin="10 0 0 0" x:Name="OpenDefRepo" Click="OpenDefRepo_Click">
                 <StackPanel Orientation="Horizontal">
                     <Label Content="{icon:Material Kind=Database,Width=20,Height=20}" VerticalAlignment="Center" Foreground="RoyalBlue"/>
-                    <Label Content="Load Default" Foreground="#fff" VerticalAlignment="Center"/>
+                    <Label Content="Default" Foreground="#fff" VerticalAlignment="Center"/>
                 </StackPanel>
             </Button>
             <Button x:Name="OpenRepo" Click="OpenRepo_Click" Margin="10 0 0 0">
@@ -34,6 +34,9 @@
                     <Label Content="{icon:Material Kind=Folder,Width=20,Height=20}" VerticalAlignment="Center" Foreground="Orange"/>
                     <Label Content="Browse" Foreground="#fff" VerticalAlignment="Center"/>
                 </StackPanel>
+            </Button>
+            <Button x:Name="InfoAbout" Click="InfoAbout_Click" Margin="10 0 0 0">
+                <Label Content="{icon:Material Kind=Information,Width=20,Height=20}" VerticalAlignment="Center" Foreground="RoyalBlue"/>
             </Button>
         </StackPanel>
         <StackPanel Margin="0 120 0 0" Grid.Row="1" Orientation="Vertical">
