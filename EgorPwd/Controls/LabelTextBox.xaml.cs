@@ -28,19 +28,13 @@ namespace EgorPwd.Controls
        DependencyProperty.Register("HelperContent", typeof(object), typeof(LabelTextBox), new PropertyMetadata(string.Empty));
         public static readonly DependencyProperty TextProperty =
       DependencyProperty.Register("Text", typeof(string), typeof(LabelTextBox), new FrameworkPropertyMetadata(string.Empty, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
-         public static readonly DependencyProperty IsPasswordInputProperty =
-      DependencyProperty.Register("IsPasswordInput", typeof(bool), typeof(LabelTextBox), new FrameworkPropertyMetadata(false, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
-
+         
         public event PropertyChangedEventHandler? PropertyChanged;
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = "")
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        public bool IsPasswordInput {
-            get { return (bool)GetValue(IsPasswordInputProperty);}
-            set { SetValue(IsPasswordInputProperty, value); if (!value) { ShowText(); } else { HideText(); } }
-        }
         public object HelperContent
         {
             get { return GetValue(HelperContentProperty); }
@@ -60,50 +54,6 @@ namespace EgorPwd.Controls
         {
             InitializeComponent();
             this.textbox.DataContext = this;
-        }
-
-        bool textHidden = false;
-        string _text = "";
-        private void ShowText()
-        {
-            this.textbox.Text = _text;
-            _text = "";
-            textbox.CaretIndex = textbox.Text.Length;
-            textHidden = false;
-        }
-        private void HideText()
-        {
-            int length = this.textbox.Text.Length;
-            _text = this.textbox.Text;
-            this.textbox.Text = "";
-            string hidden = new string('*', _text.Length);
-            this.textbox.Text = hidden;
-            textHidden = true;
-            textbox.CaretIndex = textbox.Text.Length;
-        }
-        private void textbox_PreviewTextInput(object sender, TextCompositionEventArgs e)
-        {
-            if (textHidden)
-            {
-                _text += e.Text;
-                e.Handled = true;
-                textbox.Text += "*";
-                textbox.CaretIndex = textbox.Text.Length;
-            }
-        }
-
-        private void textbox_PreviewKeyDown(object sender, KeyEventArgs e)
-        {
-            if (textHidden)
-            {
-                if(e.Key == Key.Back && textbox.Text.Length > 0)
-                {
-                    _text = _text.Substring(0, _text.Length - 1);
-                    textbox.Text = textbox.Text.Substring(0, _text.Length - 1);
-                    textbox.CaretIndex = textbox.Text.Length;
-                    e.Handled = true;
-                }
-            }
         }
     }
 }

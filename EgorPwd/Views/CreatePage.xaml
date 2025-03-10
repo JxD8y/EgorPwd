@@ -35,9 +35,7 @@
             </StackPanel>
             <StackPanel Margin="0 10 0 0" Orientation="Horizontal">
                 <Label Content="{icon:Material Kind=Key}" Foreground="RoyalBlue" VerticalAlignment="Center"/>
-                <control:LabelTextBox HelperContent="Password" Margin="10 0 0 0" x:Name="PasswordInput" Width="290"/>
-                <Label Content="{icon:Material Kind=Eye}" x:Name="ShowPassword" MouseLeftButtonDown="ShowPassword_MouseLeftButtonDown" Foreground="RoyalBlue" VerticalAlignment="Center"/>
-                <Label Content="{icon:Material Kind=EyeClosed}" Visibility="Collapsed" x:Name="HidePassword" MouseLeftButtonDown="HidePassword_MouseLeftButtonDown"  Foreground="RoyalBlue" VerticalAlignment="Center"/>
+                <control:CustomPasswordInput PreviewKeyDown="PasswordInput_PreviewKeyDown" Margin="10 0 0 0" x:Name="PasswordInput" Width="310"/>
             </StackPanel>
             <Button Margin="10 20 10 0" Click="Button_Click">
                 <StackPanel Orientation="Horizontal">

@@ -6,7 +6,7 @@
              xmlns:local="clr-namespace:EgorPwd.Controls"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-    <TextBox x:Name="textbox" Text="{Binding Text}" PreviewTextInput="textbox_PreviewTextInput" PreviewKeyDown="textbox_PreviewKeyDown">
+    <TextBox x:Name="textbox" Text="{Binding Text}">
         <TextBox.Style>
             <Style TargetType="{x:Type TextBox}">
                 <Setter Property="ContextMenu">

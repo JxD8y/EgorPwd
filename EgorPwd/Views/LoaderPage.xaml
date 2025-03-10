@@ -56,10 +56,9 @@
                     </Label.ToolTip>
                 </Label>
             </StackPanel>
-            <StackPanel Margin="10 0 0 0" Orientation="Horizontal">
-                <control:LabelTextBox Focusable="True" HelperContent="Password" x:Name="PasswordInput" Width="330"/>
-                <Label Content="{icon:Material Kind=Eye}" x:Name="ShowPassword" MouseLeftButtonDown="ShowPassword_MouseLeftButtonDown" Foreground="RoyalBlue" VerticalAlignment="Center"/>
-                <Label Content="{icon:Material Kind=EyeClosed}" Visibility="Collapsed" x:Name="HidePassword" MouseLeftButtonDown="HidePassword_MouseLeftButtonDown"  Foreground="RoyalBlue" VerticalAlignment="Center"/>
+            <StackPanel Margin="5 0 0 0" Orientation="Horizontal">
+                <Label VerticalAlignment="Center" Content="{icon:Material Kind=key}" Foreground="RoyalBlue"/>
+                <control:CustomPasswordInput Margin="10 0 0 0" PreviewKeyDown="PasswordInput_PreviewKeyDown" Width="320" x:Name="PasswordInput"/>
             </StackPanel>
             <Button x:Name="DecryptDatabase" Margin="10 10 10 0" Click="DecryptDatabase_Click">
                 <StackPanel Orientation="Horizontal">

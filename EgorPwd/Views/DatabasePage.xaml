@@ -26,7 +26,18 @@
             <Label VerticalAlignment="Center" Content="{icon:Material Kind=Harddisk,Width=25,Height=25}" Foreground="RoyalBlue"/>
             <Label VerticalAlignment="Center" x:Name="DBname" FontWeight="SemiBold" Content="Secret" Foreground="#fff"/>
             <Button x:Name="RepositorySettings" Click="RepositorySettings_Click" Margin="20 0 0 0">
-                <Label Content="{icon:Material Kind=SettingsHelper,Width=20,Height=20}" VerticalAlignment="Center" Foreground="IndianRed"/>
+                <Path Margin="5" Width="24" Height="24" Fill="IndianRed" 
+      Data="M12,15.5a3.5,3.5 0 1,1 0-7a3.5,3.5 0 1,1 0,7z
+            M19.43,12.98c0.04-0.32,0.07-0.66,0.07-0.98c0-0.32-0.03-0.66-0.07-0.98l2.11-1.65
+            c0.19-0.15,0.24-0.42,0.12-0.64l-2-3.46c-0.12-0.22-0.38-0.3-0.6-0.22l-2.49,1
+            c-0.5-0.37-1.07-0.72-1.68-0.98l-0.38-2.65C14,2.17,13.79,2,13.55,2h-4
+            c-0.24,0-0.45,0.17-0.49,0.41l-0.38,2.65c-0.61,0.26-1.18,0.61-1.68,0.98l-2.49-1
+            c-0.22-0.09-0.48,0-0.6,0.22l-2,3.46c-0.12,0.22-0.07,0.49,0.12,0.64l2.11,1.65
+            C4.57,11.34,4.54,11.68,4.54,12c0,0.32,0.03,0.66,0.07,0.98l-2.11,1.65
+            c-0.19,0.15-0.24,0.42-0.12,0.64l2,3.46c0.12,0.22,0.38,0.3,0.6,0.22l2.49-1
+            c0.5,0.37,1.07,0.72,1.68,0.98l0.38,2.65c0.04,0.24,0.25,0.41,0.49,0.41h4
+            c0.24,0,0.45-0.17,0.49-0.41l0.38-2.65c0.61-0.26,1.18-0.61,1.68-0.98l2.49,1
+            c0.22,0.09,0.48,0,0.6-0.22l2-3.46c0.12-0.22,0.07-0.49-0.12-0.64L19.43,12.98z" />
                 <Button.ToolTip>
                     <ToolTip>Open database settings</ToolTip>
                 </Button.ToolTip>
@@ -146,7 +157,18 @@
                 </StackPanel>
                 <StackPanel Orientation="Vertical" x:Name="SettingsPrompt" Visibility="Collapsed">
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                        <Label Content="{icon:Material Kind=SettingsHelper}" VerticalAlignment="Center" Foreground="RoyalBlue"/>
+                        <Path Width="24" Height="24" Fill="IndianRed"
+      Data="M12,15.5a3.5,3.5 0 1,1 0-7a3.5,3.5 0 1,1 0,7z
+            M19.43,12.98c0.04-0.32,0.07-0.66,0.07-0.98c0-0.32-0.03-0.66-0.07-0.98l2.11-1.65
+            c0.19-0.15,0.24-0.42,0.12-0.64l-2-3.46c-0.12-0.22-0.38-0.3-0.6-0.22l-2.49,1
+            c-0.5-0.37-1.07-0.72-1.68-0.98l-0.38-2.65C14,2.17,13.79,2,13.55,2h-4
+            c-0.24,0-0.45,0.17-0.49,0.41l-0.38,2.65c-0.61,0.26-1.18,0.61-1.68,0.98l-2.49-1
+            c-0.22-0.09-0.48,0-0.6,0.22l-2,3.46c-0.12,0.22-0.07,0.49,0.12,0.64l2.11,1.65
+            C4.57,11.34,4.54,11.68,4.54,12c0,0.32,0.03,0.66,0.07,0.98l-2.11,1.65
+            c-0.19,0.15-0.24,0.42-0.12,0.64l2,3.46c0.12,0.22,0.38,0.3,0.6,0.22l2.49-1
+            c0.5,0.37,1.07,0.72,1.68,0.98l0.38,2.65c0.04,0.24,0.25,0.41,0.49,0.41h4
+            c0.24,0,0.45-0.17,0.49-0.41l0.38-2.65c0.61-0.26,1.18-0.61,1.68-0.98l2.49,1
+            c0.22,0.09,0.48,0,0.6-0.22l2-3.46c0.12-0.22,0.07-0.49-0.12-0.64L19.43,12.98z" />
                         <Label Content="Settings of" VerticalAlignment="Center" Foreground="#fff"/>
                         <Label VerticalAlignment="Center" x:Name="DBnameSettings" Margin="-5 0 0 0" FontWeight="SemiBold" Content="Secret" Foreground="#fff"/>
                     </StackPanel>
@@ -225,7 +247,7 @@
                     </DataGrid>
                     <StackPanel Orientation="Horizontal" Margin="0 10 0 0">
                         <Label Content="{icon:Material Kind=Key}" VerticalAlignment="Center" Foreground="RoyalBlue"/>
-                        <control:LabelTextBox HelperContent="Password" IsPasswordInput="True" x:Name="SettingsNewPassword" Width="250"/>
+                        <control:CustomPasswordInput x:Name="SettingsNewPassword" Width="250"/>
                         <Label Content="{icon:Material Kind=PlusBox}" x:Name="AddPasswordSettings" MouseLeftButtonDown="AddPasswordSettings_MouseLeftButtonDown" VerticalAlignment="Center" Foreground="SeaGreen"/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0 10 0 0" HorizontalAlignment="Right">

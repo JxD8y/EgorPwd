@@ -27,21 +27,7 @@ namespace EgorPwd.Views
         public CreatePage(string name)
         {
             InitializeComponent();
-            this.HidePassword_MouseLeftButtonDown(this, null);
             this.NameInput.Text = name;
-        }
-        private void ShowPassword_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            this.PasswordInput.IsPasswordInput = false;
-            this.ShowPassword.Visibility = Visibility.Collapsed;
-            this.HidePassword.Visibility = Visibility.Visible;
-        }
-
-        private void HidePassword_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            this.PasswordInput.IsPasswordInput = true;
-            this.ShowPassword.Visibility = Visibility.Visible;
-            this.HidePassword.Visibility = Visibility.Collapsed;
         }
 
         private void OpenRepo_Click(object sender, RoutedEventArgs e)
@@ -61,28 +47,36 @@ namespace EgorPwd.Views
                     MessageBox.Show($"Cannot create database with empty name.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
-                if (PasswordInput.Text.Length < 1 || PasswordInput.Text.Length > 32)
+                if (PasswordInput.Password.Length < 1 || PasswordInput.Password.Length > 32)
                 {
                     MessageBox.Show($"Password should be less than 1 character and more than 32", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
 
                 string filePath = "";
-                SaveFileDialog sv = new SaveFileDialog();
-                sv.Title = "Open your password repository";
-                sv.DefaultExt = ".egor";
-                sv.FileName = NameInput.Text.ToString();
-                if (sv.ShowDialog() ?? false)
+                if(NameInput.Text != GlobalObjects.DefaultDbName)
                 {
-                    filePath = sv.FileName;
+                    SaveFileDialog sv = new SaveFileDialog();
+                    sv.Title = "Open your password repository";
+                    sv.DefaultExt = ".egor";
+                    sv.FileName = NameInput.Text.ToString();
+                    if (sv.ShowDialog() ?? false)
+                    {
+                        filePath = sv.FileName;
+                    }
+                    else
+                    {
+                        MessageBox.Show("Selecting database path halted by user", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        return;
+                    }
                 }
                 else
                 {
-                    MessageBox.Show("Selecting database path halted by user", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    return;
+                    filePath = GlobalObjects.DefaultDbName+ ".egor";
+                    MessageBox.Show("This database will be used as default", "Information", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
 
-                byte[] bKey = Encoding.UTF8.GetBytes(PasswordInput.Text);
+                byte[] bKey = Encoding.UTF8.GetBytes(PasswordInput.Password);
                 EgorKey key = EgorEngine.CreateNewKey(bKey);
                 key.OpenKey(bKey);
 
@@ -91,13 +85,22 @@ namespace EgorPwd.Views
 
                 //Clearing key and Password
                 Array.Clear(bKey, 0, bKey.Length);
-                PasswordInput.Text = "";
+                PasswordInput.Password = "";
                 GlobalObjects.OpenedKey = key;
                 GlobalObjects.MainWindow.container.Content = new DatabasePage();
             }
             catch(Exception ex)
             {
                 MessageBox.Show($"Failed to create database: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void PasswordInput_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                this.Button_Click(this, null);
+                e.Handled = true;
             }
         }
     }

@@ -213,6 +213,7 @@ namespace EgorPwd.Views
         private void LockRepository_Click(object sender, RoutedEventArgs e)
         {
             this.KeyDataGrid.Items.Clear();
+            GlobalObjects.EncryptedRepository = EgorEngine.LoadEgorFile(GlobalObjects.Repository.FilePath); //through Create new
             GlobalObjects.OpenedKey.CloseKey();
             GlobalObjects.OpenedKey = null;
 
@@ -229,6 +230,7 @@ namespace EgorPwd.Views
         {
             if(this.Container.Visibility == Visibility.Collapsed)
             {
+                DBnameSettings.Content = GlobalObjects.Repository.Name;
                 this.Container.Visibility = Visibility.Visible;
                 this.SettingsPrompt.Visibility = Visibility.Visible;
                 this.SettingsName.Text = GlobalObjects.Repository.Name;
@@ -240,7 +242,7 @@ namespace EgorPwd.Views
                 }
                 this.keySlotCount.Content = GlobalObjects.Repository.KeySlot.Count;
 
-                this.SettingsNewPassword.Text = "";
+                this.SettingsNewPassword.Password = "";
             }
         }
 
@@ -304,8 +306,8 @@ namespace EgorPwd.Views
                 {
                     GlobalObjects.Repository.Name = this.SettingsName.Text;
 
-                    if (this.SettingsNewPassword.Text.Length > 0)
-                        this.SettingsNewPassword.Text = "";
+                    if (this.SettingsNewPassword.Password.Length > 0)
+                        this.SettingsNewPassword.Password = "";
 
                     EgorEngine.WriteEgorFile(GlobalObjects.Repository, GlobalObjects.OpenedKey, GlobalObjects.Repository.FilePath);
                 }
@@ -317,7 +319,7 @@ namespace EgorPwd.Views
                 {
                     this.DBname.Content = GlobalObjects.Repository.Name;
                     this.SettingsName.Text = "";
-                    this.SettingsNewPassword.Text = "";
+                    this.SettingsNewPassword.Password = "";
                     this.SettingsPrompt.Visibility = Visibility.Collapsed;
                     this.Container.Visibility = Visibility.Collapsed;
                 }
@@ -327,14 +329,14 @@ namespace EgorPwd.Views
         private void DiscardSettings_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             this.SettingsName.Text = "";
-            this.SettingsNewPassword.Text = "";
+            this.SettingsNewPassword.Password = "";
             this.SettingsPrompt.Visibility = Visibility.Collapsed;
             this.Container.Visibility = Visibility.Collapsed;
         }
 
         private void AddPasswordSettings_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            if(this.SettingsNewPassword.Text.Length < 1 || this.SettingsNewPassword.Text.Length > 32)
+            if(this.SettingsNewPassword.Password.Length < 1 || this.SettingsNewPassword.Password.Length > 32)
             {
                 MessageBox.Show($"Password should be more than 1 character and less than 32", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
@@ -344,7 +346,7 @@ namespace EgorPwd.Views
                 {
                     try
                     {
-                        byte[] bPass = Encoding.UTF8.GetBytes(this.SettingsNewPassword.Text);
+                        byte[] bPass = Encoding.UTF8.GetBytes(this.SettingsNewPassword.Password);
                         byte[] bHash = HashUtil.ComputeHash(EgorVersion.V1, bPass);
                         
                         if(GlobalObjects.Repository.KeySlot.Any((EgorKey k) => { return k.KeyHash is not null && k.KeyHash.SequenceEqual(bHash); }))

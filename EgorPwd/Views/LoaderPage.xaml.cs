@@ -31,7 +31,6 @@ namespace EgorPwd.Views
         public LoaderPage()
         {
             InitializeComponent();
-            this.HidePassword_MouseLeftButtonDown(this, null);
             this.PasswordInput.Focus();
         }
         public void LoadDatabase(string name)
@@ -68,19 +67,6 @@ namespace EgorPwd.Views
             {
                 MessageBox.Show($"Failed to load database: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
-        }
-        private void ShowPassword_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            this.PasswordInput.IsPasswordInput = false;
-            this.ShowPassword.Visibility = Visibility.Collapsed;
-            this.HidePassword.Visibility = Visibility.Visible;
-        }
-
-        private void HidePassword_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            this.PasswordInput.IsPasswordInput = true;
-            this.ShowPassword.Visibility = Visibility.Visible;
-            this.HidePassword.Visibility = Visibility.Collapsed;
         }
 
         private void Page_Loaded(object sender, RoutedEventArgs e)
@@ -123,13 +109,13 @@ namespace EgorPwd.Views
                     return;
                 }
 
-                if (PasswordInput.Text.ToString().Length < 1 || PasswordInput.Text.ToString().Length > 32)
+                if (PasswordInput.Password.Length < 1 || PasswordInput.Password.ToString().Length > 32)
                 {
                     MessageBox.Show($"Password should be more than 1 character and less than 32", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
 
-                byte[] bKey = Encoding.UTF8.GetBytes(PasswordInput.Text);
+                byte[] bKey = Encoding.UTF8.GetBytes(PasswordInput.Password);
 
                 var keys = GlobalObjects.EncryptedRepository.EncryptedKeySlot.Where((EgorKey k) => { return k.KeyHash is not null && HashUtil.ComputeHash(EgorVersion.V1, bKey).SequenceEqual(k.KeyHash); });
 
@@ -157,7 +143,16 @@ namespace EgorPwd.Views
 
         private void OpenDefRepo_Click(object sender, RoutedEventArgs e)
         {
-            this.LoadDatabase(GlobalObjects.DefaultDbName);
+            this.LoadDatabase(GlobalObjects.DefaultDbName + ".egor");
+        }
+
+        private void PasswordInput_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                this.DecryptDatabase_Click(this, null);
+                e.Handled = true;
+            }
         }
     }
 }

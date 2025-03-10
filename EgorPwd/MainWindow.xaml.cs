@@ -24,12 +24,12 @@ public partial class MainWindow : Window
         InitializeComponent();
         GlobalObjects.MainWindow = this;
 
-        if (!File.Exists(System.IO.Path.Combine(GlobalObjects.DefaultDbName, ".egor")))
+        if (!File.Exists(GlobalObjects.DefaultDbName + ".egor"))
             this.container.Content = new CreatePage(GlobalObjects.DefaultDbName);
         else
         {
             var LoaderPage = new LoaderPage();
-            LoaderPage.LoadDatabase(GlobalObjects.DefaultDbName);
+            LoaderPage.LoadDatabase(GlobalObjects.DefaultDbName + ".egor");
             this.container.Content = LoaderPage;
         }
     }
