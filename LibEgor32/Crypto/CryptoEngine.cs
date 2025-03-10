@@ -130,5 +130,18 @@ namespace LibEgor32.Crypto
             }
             return randomBytes;
         }
+
+        static Random rd = new Random();
+        public static string GenerateRandomPassword(int length = 16)
+        {
+            const string chars = "ABhiOPQRFopqrKbcCD_g2345GHEGOREDIJ@STUVX90!stEjklmndef&LWa*()uvwxyzMN#$%YZ1678^+";
+            StringBuilder sb = new StringBuilder(16);
+            for (int i = 0; i < length; i++)
+            {
+                sb.Append(chars[rd.Next(chars.Length)]);
+            }
+            string tempPass = sb.ToString();
+            return new string(tempPass.OrderBy(c => rd.Next()).ToArray());
+        }
     }
 }

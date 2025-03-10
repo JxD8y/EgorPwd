@@ -365,7 +365,6 @@ namespace EgorPwd.Views
                         this.keySlotCount.Content = GlobalObjects.Repository.KeySlot.Count;
 
                         MessageBox.Show($"New key added to key slot", "Information", MessageBoxButton.OK, MessageBoxImage.Information);
-
                     }
                     catch(Exception ex)
                     {
@@ -374,6 +373,12 @@ namespace EgorPwd.Views
                 }
             }
 
+        }
+
+        private void GenerateRandom_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            string pass = CryptoEngine.GenerateRandomPassword();
+            this.AddPromptPassword.Text = pass;
         }
     }
 }
