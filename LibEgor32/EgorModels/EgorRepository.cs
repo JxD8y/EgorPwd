@@ -16,8 +16,7 @@ namespace LibEgor32.EgorModels
         public string Name { get; set; } = "";
         public List<EgorKey> KeySlot { get; internal set; } = new List<EgorKey>();
         public List<EgorKeyData> KeyData { get; } = new List<EgorKeyData>();
-
-        internal string FilePath = "";
+        public string FilePath { get; internal set; } = "";
         
         public EgorRepository(EgorVersion version,string name)
         {

@@ -18,20 +18,24 @@
         </Grid.RowDefinitions>
         <StackPanel Grid.Row="0" Orientation="Horizontal">
             <Button x:Name="OpenRepo" Click="OpenRepo_Click">
-                <Label Content="{icon:Material Kind=Folder,Width=25,Height=25}" VerticalAlignment="Center" Foreground="Orange"/>
-                <Button.ToolTip>
-                    <ToolTip>Open a repository</ToolTip>
-                </Button.ToolTip>
+                <StackPanel Orientation="Horizontal">
+                    <Label Content="{icon:Material Kind=Folder,Width=25,Height=25}" VerticalAlignment="Center" Foreground="Orange"/>
+                    <Label Content="Browse" Foreground="#fff" VerticalAlignment="Center"/>
+                </StackPanel>
             </Button>
         </StackPanel>
-        <StackPanel Margin="0 150 0 0" Grid.Row="1" Orientation="Vertical">
+        <StackPanel Margin="0 120 0 0" Grid.Row="1" Orientation="Vertical">
             <StackPanel Margin="0 0 0 20" HorizontalAlignment="Center" Orientation="Horizontal">
                 <Label Content="{icon:Material Kind=Plus,Width=25,Height=25}" VerticalAlignment="Center" Foreground="SeaGreen"/>
                 <Label Content="Creating new database" FontWeight="SemiBold" VerticalAlignment="Center" Foreground="#fff"/>
             </StackPanel>
-            <control:LabelTextBox Margin="10 0 40 0" HelperContent="Name" x:Name="NameInput"/>
-            <StackPanel Margin="10 10 0 0" Orientation="Horizontal">
-                <control:LabelTextBox HelperContent="Password" x:Name="PasswordInput" Width="330"/>
+            <StackPanel Orientation="Horizontal" Margin="0 10 0 0">
+                <Label Content="{icon:Material Kind=File}" VerticalAlignment="Center" Foreground="RoyalBlue"/>
+                <control:LabelTextBox Margin="10 0 40 0" HelperContent="Name" Width="300" x:Name="NameInput"/>
+            </StackPanel>
+            <StackPanel Margin="0 10 0 0" Orientation="Horizontal">
+                <Label Content="{icon:Material Kind=Key}" Foreground="RoyalBlue" VerticalAlignment="Center"/>
+                <control:LabelTextBox HelperContent="Password" Margin="10 0 0 0" x:Name="PasswordInput" Width="290"/>
                 <Label Content="{icon:Material Kind=Eye}" x:Name="ShowPassword" MouseLeftButtonDown="ShowPassword_MouseLeftButtonDown" Foreground="RoyalBlue" VerticalAlignment="Center"/>
                 <Label Content="{icon:Material Kind=EyeClosed}" Visibility="Collapsed" x:Name="HidePassword" MouseLeftButtonDown="HidePassword_MouseLeftButtonDown"  Foreground="RoyalBlue" VerticalAlignment="Center"/>
             </StackPanel>

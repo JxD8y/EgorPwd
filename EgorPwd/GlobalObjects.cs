@@ -14,5 +14,6 @@ namespace EgorPwd
         public static MainWindow MainWindow { get; internal set; }
         public static EgorEncryptedRepository EncryptedRepository { get; internal set; }
         public static EgorRepository Repository { get; internal set; }
+        public static EgorKey OpenedKey { get; internal set; }
     }
 }

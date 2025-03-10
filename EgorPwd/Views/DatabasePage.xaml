@@ -6,10 +6,16 @@
       xmlns:local="clr-namespace:EgorPwd.Views"
       xmlns:icon="http://metro.mahapps.com/winfx/xaml/iconpacks"
       xmlns:control ="clr-namespace:EgorPwd.Controls"
+      xmlns:Converters ="clr-namespace:EgorPwd.Converters"
       mc:Ignorable="d" 
       d:DesignHeight="570" d:DesignWidth="390"
-        Title="Database page" Background="#000">
+        Title="Database page" Background="#000" KeyDown="Page_KeyDown" Focusable="True">
 
+    <Page.Resources>
+        <Converters:ReverseVisibilityConverter x:Key="ReverseVisibility"/>
+        <Converters:ReverseNullToVisibility x:Key="ReverseNull"/>
+        <Converters:ByteArrayToHexString x:Key="HexStringConverter"/>
+    </Page.Resources>
     <Grid Margin="5 10 5 5">
         <Grid.RowDefinitions>
             <RowDefinition Height="40"/>
@@ -17,21 +23,226 @@
             <RowDefinition Height="30"/>
         </Grid.RowDefinitions>
         <StackPanel HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Row="0" Orientation="Horizontal">
-            <Label VerticalAlignment="Center" Content="{icon:Material Kind=Harddisk}" Foreground="RoyalBlue"/>
+            <Label VerticalAlignment="Center" Content="{icon:Material Kind=Harddisk,Width=25,Height=25}" Foreground="RoyalBlue"/>
             <Label VerticalAlignment="Center" x:Name="DBname" FontWeight="SemiBold" Content="Secret" Foreground="#fff"/>
-            <Button Margin="20 0 0 0">
-                <Label Content="{icon:Material Kind=SettingsHelper,Width=25,Height=25}" VerticalAlignment="Center" Foreground="IndianRed"/>
+            <Button x:Name="RepositorySettings" Click="RepositorySettings_Click" Margin="20 0 0 0">
+                <Label Content="{icon:Material Kind=SettingsHelper,Width=20,Height=20}" VerticalAlignment="Center" Foreground="IndianRed"/>
                 <Button.ToolTip>
                     <ToolTip>Open database settings</ToolTip>
                 </Button.ToolTip>
             </Button>
-            <Button Margin="10 0 0 0">
-                <Label Content="{icon:Material Kind=Lock,Width=25,Height=25}" VerticalAlignment="Center" Foreground="Orange"/>
+            <Button x:Name="LockRepository" Click="LockRepository_Click" Margin="10 0 0 0">
+                <Label Content="{icon:Material Kind=Lock,Width=20,Height=20}" VerticalAlignment="Center" Foreground="Orange"/>
                 <Button.ToolTip>
-                    <ToolTip>Lock database</ToolTip>
+                    <ToolTip>Lock database (Ctrl + L)</ToolTip>
                 </Button.ToolTip>
             </Button>
         </StackPanel>
+
+        <StackPanel Orientation="Vertical" Grid.Row="1" Margin="0 15 0 0">
+            <StackPanel HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Row="0" Orientation="Horizontal">
+                <Button x:Name="AddItem" Click="AddItem_Click" Margin="5 0 0 0" >
+                    <Label Content="{icon:Material Kind=Plus,Width=20,Height=20}" VerticalAlignment="Center" Foreground="SeaGreen"/>
+                    <Button.ToolTip>
+                        <ToolTip>Add new data (CTRL + N)</ToolTip>
+                    </Button.ToolTip>
+                </Button>
+                <Button Margin="10 0 0 0" x:Name="DeleteItem" Click="DeleteSelectedKey_Click">
+                    <Label Content="{icon:Material Kind=Minus,Width=20,Height=20}" VerticalAlignment="Center" Foreground="IndianRed"/>
+                    <Button.ToolTip>
+                        <ToolTip>Remove selected data</ToolTip>
+                    </Button.ToolTip>
+                </Button>
+            </StackPanel>
+            <DataGrid PreviewMouseDown="KeyDataGrid_PreviewMouseDown" Margin="0 10 0 0" Height="420" BorderThickness="0" Visibility="Visible" RowHeaderWidth="0" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto" GridLinesVisibility="All" HorizontalGridLinesBrush="#222" VerticalGridLinesBrush="#222" IsReadOnly="True" SelectionUnit="FullRow" Background="#000" CanUserAddRows="False" CanUserDeleteRows="False" AutoGenerateColumns="False" CanUserResizeRows="False" x:Name="KeyDataGrid" SelectionMode="Single">
+                <DataGrid.Resources>
+                    <ContextMenu Background="#000" x:Key="rowContextMenu">
+                        <MenuItem Background="#000" x:Name="CopySelected" Click="CopySelected_Click">
+                            <MenuItem.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <Label Content="{icon:Material Kind=ContentCopy}" Foreground="RoyalBlue"/>
+                                    <TextBlock VerticalAlignment="Center" Foreground="#fff" Text="Copy password"/>
+                                </StackPanel>
+                            </MenuItem.Header>
+                        </MenuItem>
+                    </ContextMenu>
+                </DataGrid.Resources>
+                <DataGrid.RowStyle>
+                    <Style TargetType="DataGridRow">
+                        <Setter Property="Background" Value="#000"/>
+                        <Setter Property="Foreground" Value="#fff"/>
+                        <Setter Property="FontFamily" Value="Bahnschrift"/>
+                        <Setter Property="BorderThickness" Value="0"/>
+                        <Setter Property="ContextMenu" Value="{DynamicResource rowContextMenu}"/>
+                    </Style>
+                </DataGrid.RowStyle>
+                <DataGrid.CellStyle>
+                    <Style TargetType="DataGridCell">
+                        <Setter Property="BorderThickness" Value="0"/>
+                    </Style>
+                </DataGrid.CellStyle>
+                <DataGrid.ColumnHeaderStyle>
+                    <Style TargetType="DataGridColumnHeader">
+                        <Setter Property="Background" Value="#000"/>
+                        <Setter Property="Foreground" Value="#fff"/>
+                        <Setter Property="FontFamily" Value="Bahnschrift"/>
+                        <Setter Property="BorderThickness" Value="0,0,1,1"/>
+                        <Setter Property="Margin" Value="2,0,0,0"/>
+                        <Setter Property="BorderBrush" Value="#222"/>
+                    </Style>
+                </DataGrid.ColumnHeaderStyle>
+                <DataGrid.Columns>
+                    <DataGridTemplateColumn Width="200">
+                        <DataGridTemplateColumn.Header>
+                            <StackPanel Orientation="Horizontal">
+                                <Label Content="{icon:Material Kind=Web}" Foreground="#fff"/>
+                                <Label Content="Site / Domain" Foreground="#fff"/>
+                            </StackPanel>
+                        </DataGridTemplateColumn.Header>
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Label Content="{Binding Name}" Foreground="#fff" VerticalAlignment="Center"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Width="160">
+                        <DataGridTemplateColumn.Header>
+                            <StackPanel Orientation="Horizontal">
+                                <Label Content="{icon:Material Kind=Key}" Foreground="#fff"/>
+                                <Label Content="Password" Foreground="#fff"/>
+                            </StackPanel>
+                        </DataGridTemplateColumn.Header>
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <Label Content="{Binding Password}"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+        </StackPanel>
+        <Border x:Name="Container" Visibility="Collapsed" Padding="5" Background="#222" Opacity="1" CornerRadius="15" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <Grid>
+                <StackPanel Orientation="Horizontal" x:Name="DataRemoveNotifier" Visibility="Collapsed">
+                    <Label Content="{icon:Material Kind=Information}" VerticalAlignment="Center" Foreground="RoyalBlue"/>
+                    <Label Content="Data will be removed in 5s" VerticalAlignment="Center" Foreground="#fff"/>
+                    <Label Content="Undo" x:Name="RemoveDataUndo" MouseLeftButtonDown="RemoveDataUndo_MouseLeftButtonDown" HorizontalAlignment="Center" Foreground="RoyalBlue"/>
+                </StackPanel>
+                <StackPanel Orientation="Vertical" x:Name="AddNewDataPrompt" Margin="0 10 0 0" Visibility="Collapsed">
+                    <StackPanel Orientation="Horizontal">
+                        <Label Content="{icon:Material Kind=Web}" VerticalAlignment="Center" Foreground="RoyalBlue"/>
+                        <control:LabelTextBox HelperContent="Name/Domain" x:Name="AddPromptName" Width="300"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0 10 0 0">
+                        <Label Content="{icon:Material Kind=Key}" VerticalAlignment="Center" Foreground="RoyalBlue"/>
+                        <control:LabelTextBox HelperContent="Password" x:Name="AddPromptPassword" Width="300"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0 10 0 0" HorizontalAlignment="Right">
+                        <Label Content="Discard" x:Name="AddPromptDiscard" MouseLeftButtonDown="AddPromptDiscard_MouseLeftButtonDown" Foreground="IndianRed"/>
+                        <Label Content="Add" x:Name="AddPromptAccept" MouseLeftButtonDown="AddPromptAccept_MouseLeftButtonDown" Margin="10 0 0 0" Foreground="RoyalBlue"/>
+                    </StackPanel>
+                </StackPanel>
+                <StackPanel Orientation="Vertical" x:Name="SettingsPrompt" Visibility="Collapsed">
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                        <Label Content="{icon:Material Kind=SettingsHelper}" VerticalAlignment="Center" Foreground="RoyalBlue"/>
+                        <Label Content="Settings of" VerticalAlignment="Center" Foreground="#fff"/>
+                        <Label VerticalAlignment="Center" x:Name="DBnameSettings" Margin="-5 0 0 0" FontWeight="SemiBold" Content="Secret" Foreground="#fff"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0 10 0 0">
+                        <Label Content="{icon:Material Kind=File}" VerticalAlignment="Center" Foreground="RoyalBlue"/>
+                        <control:LabelTextBox HelperContent="Name" x:Name="SettingsName" Width="300"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0 10 0 0">
+                        <Label Content="{icon:Material Kind=Key}" VerticalAlignment="Center" Foreground="RoyalBlue"/>
+                        <Label Content="Key Slot" Foreground="#fff"/>
+                    </StackPanel>
+                    <DataGrid x:Name="KeySlotSettingsGrid" PreviewMouseDown="KeyDataGrid_PreviewMouseDown" Margin="0 10 0 0" Height="200" BorderThickness="0" Visibility="Visible" RowHeaderWidth="0" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto" GridLinesVisibility="All" HorizontalGridLinesBrush="#222" VerticalGridLinesBrush="#222" IsReadOnly="True" SelectionUnit="FullRow" Background="#111" CanUserAddRows="False" CanUserDeleteRows="False" AutoGenerateColumns="False" CanUserResizeRows="False" SelectionMode="Single">
+                        <DataGrid.Resources>
+                            <ContextMenu Background="#000" x:Key="rowContextMenu">
+                                <MenuItem Background="#000" x:Name="RemoveKeyEntrySettings" Click="RemoveKeyEntrySettings_Click">
+                                    <MenuItem.Header>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Label Content="{icon:Material Kind=TrashCan}" Foreground="IndianRed"/>
+                                            <TextBlock VerticalAlignment="Center" Foreground="#fff" Text="Remove Key"/>
+                                        </StackPanel>
+                                    </MenuItem.Header>
+                                </MenuItem>
+                            </ContextMenu>
+                        </DataGrid.Resources>
+                        <DataGrid.RowStyle>
+                            <Style TargetType="DataGridRow">
+                                <Setter Property="Background" Value="#000"/>
+                                <Setter Property="Foreground" Value="#fff"/>
+                                <Setter Property="FontFamily" Value="Bahnschrift"/>
+                                <Setter Property="BorderThickness" Value="0"/>
+                                <Setter Property="ContextMenu" Value="{DynamicResource rowContextMenu}"/>
+                            </Style>
+                        </DataGrid.RowStyle>
+                        <DataGrid.CellStyle>
+                            <Style TargetType="DataGridCell">
+                                <Setter Property="BorderThickness" Value="0"/>
+                            </Style>
+                        </DataGrid.CellStyle>
+                        <DataGrid.ColumnHeaderStyle>
+                            <Style TargetType="DataGridColumnHeader">
+                                <Setter Property="Background" Value="#000"/>
+                                <Setter Property="Foreground" Value="#fff"/>
+                                <Setter Property="FontFamily" Value="Bahnschrift"/>
+                                <Setter Property="BorderThickness" Value="0,0,1,1"/>
+                                <Setter Property="Margin" Value="2,0,0,0"/>
+                                <Setter Property="BorderBrush" Value="#222"/>
+                            </Style>
+                        </DataGrid.ColumnHeaderStyle>
+                        <DataGrid.Columns>
+                            <DataGridTemplateColumn Width="40">
+                                <DataGridTemplateColumn.Header>
+                                    <Label Content="{icon:Material Kind=CheckCircleOutline}" Foreground="#fff"/>
+                                </DataGridTemplateColumn.Header>
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Label Content="{icon:Material Kind=CheckCircle}" Visibility="{Binding SecuredKey ,Converter={StaticResource ReverseNull}}" Foreground="SeaGreen" VerticalAlignment="Center"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Width="250">
+                                <DataGridTemplateColumn.Header>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Label Content="{icon:Material Kind=KeyVariant}" Foreground="#fff"/>
+                                        <Label Content="Password Hash" Foreground="#fff"/>
+                                    </StackPanel>
+                                </DataGridTemplateColumn.Header>
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Label Foreground="#fff" Content="{Binding KeyHash,Converter={StaticResource HexStringConverter}}"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                    <StackPanel Orientation="Horizontal" Margin="0 10 0 0">
+                        <Label Content="{icon:Material Kind=Key}" VerticalAlignment="Center" Foreground="RoyalBlue"/>
+                        <control:LabelTextBox HelperContent="Password" IsPasswordInput="True" x:Name="SettingsNewPassword" Width="250"/>
+                        <Label Content="{icon:Material Kind=PlusBox}" x:Name="AddPasswordSettings" MouseLeftButtonDown="AddPasswordSettings_MouseLeftButtonDown" VerticalAlignment="Center" Foreground="SeaGreen"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0 10 0 0" HorizontalAlignment="Right">
+                        <Label Content="Discard" x:Name="DiscardSettings" MouseLeftButtonDown="DiscardSettings_MouseLeftButtonDown" Margin="10 0 0 0" Foreground="IndianRed"/>
+                        <Label Content="Apply" x:Name="ApplySettings" MouseLeftButtonDown="ApplySettings_MouseLeftButtonDown" Foreground="RoyalBlue"/>
+                    </StackPanel>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" x:Name="InfoNotifier" Visibility="Collapsed">
+                    <Label Content="{icon:Material Kind=Information}" VerticalAlignment="Center" Foreground="RoyalBlue"/>
+                    <Label Content="Info" x:Name="InfoNotifierContent" VerticalAlignment="Center" Foreground="#fff"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" x:Name="WarnNotifier" Visibility="Collapsed">
+                    <Label Content="{icon:Material Kind=Information}" VerticalAlignment="Center" Foreground="Orange"/>
+                    <Label Content="Info" x:Name="WarnNotifierContent" VerticalAlignment="Center" Foreground="#fff"/>
+                </StackPanel>
+            </Grid>
+        </Border>
         <StackPanel Grid.Row="2" Orientation="Horizontal">
             <Label Content="{icon:Material Kind=Information}" VerticalAlignment="Center" Foreground="Gainsboro"/>
             <Label FontSize="12" VerticalAlignment="Center" Content="Key slots: " Foreground="Gainsboro"/>

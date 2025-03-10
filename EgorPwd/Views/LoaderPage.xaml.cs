@@ -32,17 +32,12 @@ namespace EgorPwd.Views
         {
             InitializeComponent();
             this.HidePassword_MouseLeftButtonDown(this, null);
+            this.PasswordInput.Focus();
         }
-        public LoaderPage(string name) : base() => this.LoadDatabase(name);
-        private void LoadDatabase(string name)
+        public void LoadDatabase(string name)
         {
             try
             {
-                if (name == "")
-                {
-                    this.OpenRepo_Click(this, null);
-                    return;
-                }
                 if (name != "" && !File.Exists(name))
                 {
                     GlobalObjects.MainWindow.container.Content = new CreatePage(name);
@@ -51,15 +46,22 @@ namespace EgorPwd.Views
                 if (name != "" && File.Exists(name))
                 {
                     string path = name;
-                    if (!name.EndsWith(".egor"))
-                    {
-                        path = System.IO.Path.Combine(name, ".egor");
-                    }
                     EgorEncryptedRepository eRepo = EgorEngine.LoadEgorFile(path);
                     this.version.Content = eRepo.Version.ToString();
                     this.keySlotSize.Content = eRepo.EncryptedKeySlot.Count;
                     this.repoName.Content = eRepo.Name;
                     GlobalObjects.EncryptedRepository = eRepo;
+                }
+                if(GlobalObjects.EncryptedRepository is not null)
+                {
+                    this.version.Content = GlobalObjects.EncryptedRepository.Version.ToString();
+                    this.keySlotSize.Content = GlobalObjects.EncryptedRepository.EncryptedKeySlot.Count;
+                    this.repoName.Content = GlobalObjects.EncryptedRepository.Name;
+                    return;
+                }
+                if (name == "")
+                {
+                    this.OpenRepo_Click(this, null);
                 }
             }
             catch(Exception ex)
@@ -83,6 +85,7 @@ namespace EgorPwd.Views
 
         private void Page_Loaded(object sender, RoutedEventArgs e)
         {
+            this.Dispatcher.Invoke(() => PasswordInput.Focus(), System.Windows.Threading.DispatcherPriority.Input);
             this.PasswordInput.Focus();
             Keyboard.Focus(this.PasswordInput);
         }
@@ -97,7 +100,7 @@ namespace EgorPwd.Views
             OpenFileDialog opn = new OpenFileDialog();
             opn.Multiselect = false;
             opn.Title = "Open your password repository";
-            opn.DefaultExt = ".Egor";
+            opn.DefaultExt = ".egor";
             if (opn.ShowDialog() ?? false)
             {
                 string repoPath = opn.FileName;
@@ -105,8 +108,7 @@ namespace EgorPwd.Views
             }
             else
             {
-                MessageBox.Show("Opening new repository halted by user.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
-                this.LoadDatabase(GlobalObjects.DefaultDbName);
+                MessageBox.Show("Opening repository halted by user.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
         }
 
@@ -141,7 +143,9 @@ namespace EgorPwd.Views
 
                 key.OpenKey(bKey);
 
+                GlobalObjects.OpenedKey = key;
                 GlobalObjects.Repository = EgorEngine.DecryptRepository(GlobalObjects.EncryptedRepository, key);
+                GlobalObjects.Repository.KeyData.OrderBy((EgorKeyData d) => d.ID);
                 GlobalObjects.MainWindow.container.Content = new DatabasePage();
             }
             catch(Exception ex)

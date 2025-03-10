@@ -1,4 +1,5 @@
 ﻿using EgorPwd.Views;
+using System.IO;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
@@ -9,6 +10,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Xml.Linq;
 
 namespace EgorPwd;
 
@@ -22,6 +24,13 @@ public partial class MainWindow : Window
         InitializeComponent();
         GlobalObjects.MainWindow = this;
 
-        this.container.Content = new LoaderPage();
+        if (!File.Exists(System.IO.Path.Combine(GlobalObjects.DefaultDbName, ".egor")))
+            this.container.Content = new CreatePage(GlobalObjects.DefaultDbName);
+        else
+        {
+            var LoaderPage = new LoaderPage();
+            LoaderPage.LoadDatabase(GlobalObjects.DefaultDbName);
+            this.container.Content = LoaderPage;
+        }
     }
 }

@@ -46,21 +46,24 @@ namespace EgorPwd.Views
 
         private void OpenRepo_Click(object sender, RoutedEventArgs e)
         {
-            GlobalObjects.MainWindow.container.Content = new LoaderPage("");
+            var loaderPage = new LoaderPage();
+            loaderPage.LoadDatabase("");
+            if(GlobalObjects.EncryptedRepository is not null)
+                GlobalObjects.MainWindow.container.Content = loaderPage;
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
             try
             {
-                if (NameInput.Content.ToString().Length < 1)
+                if (NameInput.Text.Length < 1)
                 {
                     MessageBox.Show($"Cannot create database with empty name.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
-                if (PasswordInput.Text.ToString().Length < 1 || PasswordInput.Text.ToString().Length > 32)
+                if (PasswordInput.Text.Length < 1 || PasswordInput.Text.Length > 32)
                 {
-                    MessageBox.Show($"Password should be more than 1 character and less than 32", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    MessageBox.Show($"Password should be less than 1 character and more than 32", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
 
@@ -68,7 +71,7 @@ namespace EgorPwd.Views
                 SaveFileDialog sv = new SaveFileDialog();
                 sv.Title = "Open your password repository";
                 sv.DefaultExt = ".egor";
-                sv.FileName = NameInput.Content.ToString();
+                sv.FileName = NameInput.Text.ToString();
                 if (sv.ShowDialog() ?? false)
                 {
                     filePath = sv.FileName;
@@ -83,12 +86,13 @@ namespace EgorPwd.Views
                 EgorKey key = EgorEngine.CreateNewKey(bKey);
                 key.OpenKey(bKey);
 
-                EgorRepository repo = EgorEngine.CreateNewRepository(key, NameInput.Content.ToString(), filePath);
+                EgorRepository repo = EgorEngine.CreateNewRepository(key, NameInput.Text, filePath);
                 GlobalObjects.Repository = repo;
 
                 //Clearing key and Password
                 Array.Clear(bKey, 0, bKey.Length);
                 PasswordInput.Text = "";
+                GlobalObjects.OpenedKey = key;
                 GlobalObjects.MainWindow.container.Content = new DatabasePage();
             }
             catch(Exception ex)
